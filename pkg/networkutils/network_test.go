@@ -94,6 +94,15 @@ func TestSetupENINetwork(t *testing.T) {
 	mockNetLink.EXPECT().LinkSetMTU(gomock.Any(), testMTU).Return(nil)
 	mockNetLink.EXPECT().LinkSetUp(gomock.Any()).Return(nil)
 
+	// eth1's IP address
+	_, testipnet, err := net.ParseCIDR(testeniSubnet)
+	assert.NoError(t, err)
+	testeniAddr := &net.IPNet{
+		IP:   net.ParseIP(testeniIP),
+		Mask: testipnet.Mask,
+	}
+	mockNetLink.EXPECT().AddrAdd(gomock.Any(), &netlink.Addr{IPNet: testeniAddr}).Return(nil)
+
 	// eth1's device
 	eth1.EXPECT().Attrs().Return(mockLinkAttrs2)
 	eth1.EXPECT().Attrs().Return(mockLinkAttrs2)

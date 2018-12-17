@@ -518,6 +518,17 @@ func setupENINetwork(eniIP string, eniMAC string, eniTable int, eniSubnetCIDR st
 		return errors.Wrapf(err, "eni network setup: failed to define gateway address from %v", ipnet.IP)
 	}
 
+	// Explicitly add set the IP on the device. Required for older kernels.
+	// ip address add <eniIP> dev <link>
+	log.Debugf("Setting up ENI's primary IP %s", eniIP)
+	eniAddr := &net.IPNet{
+		IP:   net.ParseIP(eniIP),
+		Mask: ipnet.Mask,
+	}
+	if err := netLink.AddrAdd(link, &netlink.Addr{IPNet: eniAddr}); err != nil {
+		return errors.Wrap(err, "eni network setup: failed to add IP addr to ENI")
+	}
+
 	log.Debugf("Setting up ENI's default gateway %v", gw)
 
 	for _, r := range []netlink.Route{
