@@ -1,5 +1,6 @@
 aws-k8s-agent
 aws-cni
+portmap
 verify-aws
 verify-network
 *~
